@@ -13,6 +13,7 @@ user_id_input = '//input[@id="user-id-input"]'
 obtain_chest_button = '//button[@data-button-type="free" and {}]'
 free_chest_button = obtain_chest_button.format(1)
 free_chest_button_clickable = obtain_chest_button.format('not(@disabled)')
+free_chest_button_disabled = obtain_chest_button.format('@disabled')
 
 
 
@@ -52,15 +53,18 @@ def log_user_in(driver: webdriver.Chrome, user_id: str):
         user_logout(driver)
         driver.refresh()
 
+    # Login with user_id
     driver.find_element(By.XPATH, account_button).click()
     driver.find_element(By.XPATH, user_id_input).send_keys(user_id + Keys.ENTER)
     # Wait for login attempt
     loadWait(driver).until_not(expected_conditions.presence_of_element_located((By.XPATH, '//button[contains(@class, "loading")]')))
 
+    # User account does not exist
     if does_existance_now(driver, By.XPATH, '//*[@data-error-type="not-found"]'):
         webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
         raise Exception("Invalid user id")
     
+    # Wait for popup to close after pressing esc
     loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, '//*[@data-id="user-id-modal" and @hidden]')))
     
         
@@ -71,18 +75,20 @@ def get_free_chest(driver: webdriver.Chrome):
     # except:
     #     pass
     time.sleep(0.5)
-    availability = driver.find_element(By.XPATH, free_chest_button + '/span')
-    availability_info = availability.get_attribute("data-id")
     
-    if availability_info == 'get-free':
+    # If eligible for for chest
+    if does_existance_now(driver, By.XPATH, free_chest_button_clickable):
+        # Close gdpr banner because it covers the button
         if does_existance_now(driver, By.XPATH, '//*[contains(@class,"gdpr-container")]'): #gdpr banner
             driver.find_element(By.XPATH, '//button[contains(@class,"gdpr-close")]').click() #close banner
+
+        # Click chest
         chest_button.click()
         loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, '//button[text()="Back to store"]')))
         webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
-        loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, '//button[@data-testid="free-button" and @disabled]')))
+        loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, free_chest_button_disabled)))
         
-    elif availability_info == 'owned':
+    elif does_existance_now(driver,By.XPATH, free_chest_button_disabled):
         pass
     
     else:
