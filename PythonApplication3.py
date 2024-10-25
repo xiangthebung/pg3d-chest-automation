@@ -17,17 +17,17 @@ free_chest_button_disabled = obtain_chest_button.format('@disabled')
 
 
 
-def does_existance_now(driver: webdriver.Chrome, by: By, path: str):
+def does_existance_now(driver: webdriver.Edge, by: By, path: str):
     try:
         loadWait(driver, 0).until(expected_conditions.presence_of_element_located((by,path)))
         return True
     except: 
         return False
     
-def loadWait(driver: webdriver.Chrome, time: int = 3):
+def loadWait(driver: webdriver.Edge, time: int = 3):
     return WebDriverWait(driver, time)
 
-def user_logged_in(driver: webdriver.Chrome):
+def user_logged_in(driver: webdriver.Edge):
     login_dropdown = driver.find_element(By.XPATH,
                                          account_button + '/child::*[last()]')
 
@@ -41,14 +41,14 @@ def user_logged_in(driver: webdriver.Chrome):
         raise Exception("Login info not found")
 
 
-def user_logout(driver: webdriver.Chrome):
+def user_logout(driver: webdriver.Edge):
     driver.find_element(By.XPATH, account_button).click()
     driver.find_element(
         By.XPATH,
         account_button + '//button[contains(@class,"logout-button")]').click()
 
 
-def log_user_in(driver: webdriver.Chrome, user_id: str):
+def log_user_in(driver: webdriver.Edge, user_id: str):
     if user_logged_in(driver):
         user_logout(driver)
         driver.refresh()
@@ -68,7 +68,7 @@ def log_user_in(driver: webdriver.Chrome, user_id: str):
     loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, '//*[@data-id="user-id-modal" and @hidden]')))
     
         
-def get_free_chest(driver: webdriver.Chrome):
+def get_free_chest(driver: webdriver.Edge):
     chest_button = driver.find_element(By.XPATH, free_chest_button)
     # try:
     #     wait_for_available = loadWait(driver,1).until(expected_conditions.presence_of_element_located((By.XPATH, free_chest_button_clickable + '/span[@data-id = "get-free"]')))
@@ -96,9 +96,9 @@ def get_free_chest(driver: webdriver.Chrome):
     
 
 if __name__ == "__main__":
-    options = webdriver.ChromeOptions()
+    options = webdriver.EdgeOptions()
     options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options)
+    driver = webdriver.Edge(options)
     driver.maximize_window()
     driver.get(webstore_url) 
     
