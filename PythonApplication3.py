@@ -70,20 +70,20 @@ def log_user_in(driver: webdriver.Edge, user_id: str):
         
 def get_free_chest(driver: webdriver.Edge):
     chest_button = driver.find_element(By.XPATH, free_chest_button)
-    # try:
-    #     wait_for_available = loadWait(driver,1).until(expected_conditions.presence_of_element_located((By.XPATH, free_chest_button_clickable + '/span[@data-id = "get-free"]')))
-    # except:
-    #     pass
     time.sleep(0.5)
     
     # If eligible for for chest
     if does_existance_now(driver, By.XPATH, free_chest_button_clickable):
         # Close gdpr banner because it covers the button
         if does_existance_now(driver, By.XPATH, '//*[contains(@class,"gdpr-container")]'): #gdpr banner
-            driver.find_element(By.XPATH, '//button[contains(@class,"gdpr-close")]').click() #close banner
-
+            if does_existance_now(driver, By.CSS_SELECTOR, 'button[id="reject-button"]'):
+                driver.find_element(By.CSS_SELECTOR, 'button[id="reject-button"]').click()
+            elif does_existance_now(driver, By.XPATH, '//button[contains(@class,"gdpr-close")]'):
+                driver.find_element(By.XPATH, '//button[contains(@class,"gdpr-close")]').click() 
+        
         # Click chest
         chest_button.click()
+        print("Chest obtained")
         loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, '//button[text()="Back to store"]')))
         webdriver.ActionChains(driver).send_keys(Keys.ESCAPE).perform()
         loadWait(driver).until(expected_conditions.presence_of_element_located((By.XPATH, free_chest_button_disabled)))
@@ -101,9 +101,23 @@ if __name__ == "__main__":
     driver = webdriver.Edge(options)
     driver.maximize_window()
     driver.get(webstore_url) 
-    
-    for i in range(325892610,325894305):  
+    member_id = \
+    """
+    325555554
+    325894507
+    325368772
+    212880383
+    209598468
+    197008681
+    205657738
+    317405762
+    220618013
+    212657701
+    322124966
+    """
+    for i in member_id.split():
         try:
+            print(f"Currently on user {i}")
             log_user_in(driver, str(i))
             get_free_chest(driver)
         except Exception as e:
